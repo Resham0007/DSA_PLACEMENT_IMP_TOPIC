@@ -1,0 +1,65 @@
+#include <vector>
+#include <queue>
+#include <utility>
+using namespace std;
+
+class Solution {
+public:
+    // Function to find minimum time required to rot all oranges
+    int orangesRotting(vector<vector<int>>& grid) {
+        int n = grid.size(); 
+        int m = grid[0].size();
+        
+        // Queue to store rotten oranges with time
+        queue<pair<pair<int, int>, int>> q;
+        
+        // Visited array
+        vector<vector<int>> vis(n, vector<int>(m, 0));
+        
+        // Traverse the grid and enqueue all initially rotten oranges
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(grid[i][j] == 2) { // Rotten orange
+                    q.push({{i, j}, 0}); // Time is 0 for initially rotten oranges
+                    vis[i][j] = 2; // Mark as visited (rotten)
+                }
+            }
+        }
+        
+        int tm = 0; // Initialize time
+        int drow[] = {-1, 0, +1, 0}; // Row deltas for 4 directions
+        int dcol[] = {0, 1, 0, -1}; // Column deltas for 4 directions
+        
+        // Process the queue
+        while(!q.empty()) {
+            int r = q.front().first.first;
+            int c = q.front().first.second;
+            int t = q.front().second;
+            tm = max(tm, t); // Update time
+            q.pop();
+            
+            for(int i = 0; i < 4; i++) {
+                int nrow = r + drow[i];
+                int ncol = c + dcol[i];
+                
+                // Check if the adjacent cell is within bounds and has a fresh orange
+                if(nrow >= 0 && nrow < n && ncol >= 0 && ncol < m 
+                   && vis[nrow][ncol] != 2 && grid[nrow][ncol] == 1) {
+                    q.push({{nrow, ncol}, t + 1});
+                    vis[nrow][ncol] = 2; // Mark as visited (rotten)
+                }
+            }
+        }
+        
+        // Check if any fresh orange is left unrotted
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(vis[i][j] != 2 && grid[i][j] == 1) {
+                    return -1; // If any fresh orange is left, return -1
+                }
+            }
+        }
+        
+        return tm; // Return the total time
+    }
+};
