@@ -1,0 +1,73 @@
+To solve the connected components problem in a matrix using a graph-based approach,
+we can treat each cell in the matrix as a vertex and each possible move (up, down, left, right)
+as an edge connecting two vertices. We then use Depth First Search (DFS) or Breadth First Search (BFS) 
+to explore the graph and find all connected components.
+#include <iostream>
+#include <vector>
+using namespace std;
+
+void dfs(int i, int j, vector<vector<int>>& grid, vector<vector<bool>>& visited) {
+    int rows = grid.size();
+    int cols = grid[0].size();
+    
+    // Define possible directions to move: right, left, down, up
+    vector<pair<int, int>> directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
+    
+    visited[i][j] = true;
+    
+    for (auto& dir : directions) {
+        int newRow = i + dir.first;
+        int newCol = j + dir.second;
+        
+        if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols 
+            && grid[newRow][newCol] == 1 && !visited[newRow][newCol]) {
+            dfs(newRow, newCol, grid, visited);
+        }
+    }
+}
+
+int countConnectedComponents(vector<vector<int>>& grid) {
+    int rows = grid.size();
+    int cols = grid[0].size();
+    vector<vector<bool>> visited(rows, vector<bool>(cols, false));
+    int count = 0;
+    
+    for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+            if (grid[i][j] == 1 && !visited[i][j]) {
+                dfs(i, j, grid, visited);
+                ++count;
+            }
+        }
+    }
+    
+    return count;
+}
+
+int main() {
+    vector<vector<int>> grid = {
+        {1, 1, 0, 0, 0},
+        {0, 1, 0, 0, 1},
+        {1, 0, 0, 1, 1},
+        {0, 0, 0, 0, 0},
+        {1, 0, 1, 0, 1}
+    };
+    
+    cout << "Number of Connected Components: " << countConnectedComponents(grid) << endl;
+    return 0;
+}
+
+Explanation:
+DFS Function:
+
+The dfs function marks the current cell as visited and then recursively visits all its unvisited and connected neighbors (i.e., cells that are part of the same component).
+countConnectedComponents Function:
+
+This function initializes a visited matrix to keep track of which cells have been visited.
+It iterates through each cell in the grid. If a cell is part of a component (i.e., it contains a 1 and hasn't been visited), it starts a DFS from that cell, marking all cells in the same component.
+Each time a DFS starts, it indicates the discovery of a new connected component, so we increment the component count.
+Time Complexity:
+O(V + E): Where V is the number of vertices (cells in the matrix) and E is the number of edges (possible moves between cells). In a grid, this is equivalent to O(rows * cols) because each cell is visited once, and each edge is checked once.
+Space Complexity:
+O(V): Space for the visited array and the recursive stack for DFS (which, in the worst case, can go as deep as V levels).
+This solution efficiently counts the number of connected components in the given matrix.
